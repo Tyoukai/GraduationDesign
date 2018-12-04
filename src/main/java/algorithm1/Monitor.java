@@ -36,11 +36,11 @@ public class Monitor implements Runnable{
             long sTime = System.currentTimeMillis();
             long eTime = System.currentTimeMillis();
             int flag = 0;
-            while(eTime - sTime < 120000) {
-                if(eTime -sTime >= 45000 && flag == 0) {
-                    q2.setNumber(15000);
-                    flag = 1;
-                }
+            while(eTime - sTime < 90000) {
+//                if(eTime -sTime >= 45000 && flag == 0) {
+//                    q2.setNumber(15000);
+//                    flag = 1;
+//                }
                 Thread.sleep(1000);
                 double q1Length = q1.getQij1();
                 double q1R = q1.getRij1();

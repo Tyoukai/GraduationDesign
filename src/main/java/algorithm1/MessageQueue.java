@@ -15,7 +15,8 @@ public class MessageQueue {
     private double Rij2; //记录上上次时间片段中消息到达的时间速率
     private String type = Constant.STATIONARY; // 记录队列的类别，是泊松过程，还是平稳过程
     private double lamda = 10; // 对应泊松过程的lamda
-    private double delte = 1; //记录每个队列的权重
+    private double delte = 1; //记录每个队列的拥塞指数
+    private int WRRQuan = 1; // WRR算法中对应队列的权值
     private double T = 1000; // 对应T的周期。默认周期1s
     private int number = 20000; // 对应的平稳过程中周期T内发送的消息个数
     private long startTime = 0; //周期开始的时间
@@ -54,6 +55,11 @@ public class MessageQueue {
         String message = queue.poll();
         C--;
         return message;
+    }
+
+    // 从队列中获取一个消息
+    public String decrease() {
+        return queue.poll();
     }
 
     //将计数器减一
@@ -179,5 +185,13 @@ public class MessageQueue {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getWRRQuan() {
+        return WRRQuan;
+    }
+
+    public void setWRRQuan(int WRRQuan) {
+        this.WRRQuan = WRRQuan;
     }
 }

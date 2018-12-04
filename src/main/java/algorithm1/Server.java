@@ -1,6 +1,8 @@
 package algorithm1;
 
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 /**
@@ -48,6 +50,14 @@ public class Server implements  Runnable {
         int numOfQueueEndInOneCycle = 0;
         int count = 0;
         int[] speed = new int[queue.size()]; // 统计处理的消息个数
+        double[] totalTime = new double[queue.size()]; // 统计周期内的平均时延
+        File file = new File("time_delay.txt"); // src\main\resources\q1.txt
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(file.getName(), true);
+        } catch(Exception e) {
+        }
+
         while(true) {
             long sTime = System.currentTimeMillis();
             while(numOfQueueEndInOneCycle != queue.size()) { // 一个循环周期内
@@ -61,6 +71,8 @@ public class Server implements  Runnable {
                         continue;
                      }
                      String message = tmpQueue.getAndDecrease();
+                    long cuTime = System.currentTimeMillis();
+                    totalTime[i] += cuTime - Long.parseLong(message);
                      speed[i]++;
                      count++;
                     if(tmpQueue.getC() <= 0  || count >= P) {
@@ -86,9 +98,17 @@ public class Server implements  Runnable {
 
             long eTime = System.currentTimeMillis();
 //            System.out.println("拿出循环周期：" + (eTime - sTime));
-            for(int i = 0; i < speed.length; i++) {
+            for(int i = 0; i < speed.length; i++) { // 计算队列的时延
                 System.out.println("speed[" + i + "]:" + speed[i]);
+                double tmpDelay = totalTime[i] / speed[i];
+                try {
+                    fw.write(tmpDelay + "____Q" + (i + 1) + "\r\n");
+                    fw.flush();
+                } catch(Exception e) {
+
+                }
                 speed[i] = 0;
+                totalTime[i] = 0;
             }
             System.out.println("-----------------------------------------");
 
@@ -161,12 +181,30 @@ public class Server implements  Runnable {
     public void twoQueueParameter(ArrayList<MessageQueue> queue) {
         MessageQueue Q1 = queue.get(0);
         MessageQueue Q2 = queue.get(1);
-        double A12 = Q1.getQij1() * Q2.getDelte() + Q1.getRij1() * Q2.getDelte() * Q1.getT() / 1000
-                - Q2.getQij1() * Q1.getDelte() - Q2.getRij1() * Q1.getDelte() * Q1.getT() / 1000;
+//        System.out.println("q1长度：" + Q1.getQij1());
+//        System.out.println("q1德尔塔:" + Q1.getDelte());
+//        System.out.println("q1的到达率:" + Q1.getRij1());
+//        System.out.println("q1的时间周期:" + Q1.getT());
+//        System.out.println("q2长度：" + Q2.getQij1());
+//        System.out.println("q2德尔塔:" + Q2.getDelte());
+//        System.out.println("q2的到达率:" + Q2.getRij1());
+//        System.out.println("q2的时间周期:" + Q2.getT());
+
+        double A12 = Q1.getQij1() * Q2.getDelte() + Q1.getRij1() * Q2.getDelte() * Q1.getT()
+                - Q2.getQij1() * Q1.getDelte() - Q2.getRij1() * Q1.getDelte() * Q1.getT();
         int W1 = (int)((Q1.getDelte() * this.P + A12) / (Q1.getDelte() + Q2.getDelte()));
         int W2 = (int)((Q2.getDelte() * this.P - A12) / (Q1.getDelte() + Q2.getDelte()));
         Q1.setW(W1);
         Q2.setW(W2);
+
+//        System.out.println("A12:" + A12);
+//        System.out.println("W1:" + W1);
+//        System.out.println("W2:" + W2);
+//        System.out.println("q1长度                    到达速率                    拥塞指数");
+//        System.out.println(Q1.getQij1() + "                    " + Q1.getRij1() + "                    " + (Q1.getQij1() / Q1.getRij1()));
+//        System.out.println("q2长度                    到达速率                    拥塞指数");
+//        System.out.println(Q2.getQij1() + "                    " + Q2.getRij1() + "                    " + (Q2.getQij1() / Q2.getRij1()));
+//        System.out.println();
     }
 
     // 计算并更新系统有三个队列时的权值W
