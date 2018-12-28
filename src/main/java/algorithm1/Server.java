@@ -165,6 +165,8 @@ public class Server implements  Runnable {
                 twoQueueParameter(queue);
             } else if (queue.size() == 3) { //系统为三队列时
                 threeQueueParameter(queue);
+            } else if(queue.size() == 5) { // 系统为五队列时
+                fiveQueueParameter(queue);
             }
 
             // 设置新的计数器
@@ -190,16 +192,31 @@ public class Server implements  Runnable {
 //        System.out.println("q2的到达率:" + Q2.getRij1());
 //        System.out.println("q2的时间周期:" + Q2.getT());
 
-        double A12 = Q1.getQij1() * Q2.getDelte() + Q1.getRij1() * Q2.getDelte() * Q1.getT()
-                - Q2.getQij1() * Q1.getDelte() - Q2.getRij1() * Q1.getDelte() * Q1.getT();
-        int W1 = (int)((Q1.getDelte() * this.P + A12) / (Q1.getDelte() + Q2.getDelte()));
-        int W2 = (int)((Q2.getDelte() * this.P - A12) / (Q1.getDelte() + Q2.getDelte()));
+//        double A12 = Q1.getQij1() * Q2.getDelte() + Q1.getRij1() * Q2.getDelte() * Q1.getT()
+////                - Q2.getQij1() * Q1.getDelte() - Q2.getRij1() * Q1.getDelte() * Q1.getT();
+////        int W1 = (int)((Q1.getDelte() * this.P + A12) / (Q1.getDelte() + Q2.getDelte()));
+////        int W2 = (int)((Q2.getDelte() * this.P - A12) / (Q1.getDelte() + Q2.getDelte()));
+////        Q1.setW(W1);
+////        Q2.setW(W2);
+
+        //新方法
+        double A = (Q1.getQij1() + Q1.getRij1() * Q1.getT()) * Q2.getDelte();
+        double B = (Q2.getQij1() + Q2.getRij1() * Q2.getT()) * Q1.getDelte();
+        double C = Q1.getDelte() - Q2.getDelte();
+        int W1;
+        int W2;
+        W1 = (int)(((C * this.P - A - B) + Math.sqrt((Math.pow((A + B -C * this.P), 2) + 4 * A * this.P * C))) / (2.0 * C));
+        W2 = (int)(((C * this.P + A + B) - Math.sqrt((Math.pow((A + B -C * this.P), 2) + 4 * A * this.P * C))) / (2.0 * C));
+        if(W1 < 0 || W2 < 0) {
+            W1 = (int)(((C * this.P - A - B) - Math.sqrt((Math.pow((A + B -C * this.P), 2) + 4 * A * this.P * C))) / (2.0 * C));
+            W2 = (int)(((C * this.P + A + B) + Math.sqrt((Math.pow((A + B -C * this.P), 2) + 4 * A * this.P * C))) / (2.0 * C));
+        }
         Q1.setW(W1);
         Q2.setW(W2);
 
 //        System.out.println("A12:" + A12);
-//        System.out.println("W1:" + W1);
-//        System.out.println("W2:" + W2);
+        System.out.println("W1:" + W1);
+        System.out.println("W2:" + W2);
 //        System.out.println("q1长度                    到达速率                    拥塞指数");
 //        System.out.println(Q1.getQij1() + "                    " + Q1.getRij1() + "                    " + (Q1.getQij1() / Q1.getRij1()));
 //        System.out.println("q2长度                    到达速率                    拥塞指数");
@@ -225,6 +242,72 @@ public class Server implements  Runnable {
         Q3.setW(W3);
     }
 
+    //计算并更新系统有五个队列时的权值W
+    public void fiveQueueParameter(ArrayList<MessageQueue> queue) {
+        MessageQueue Q1 = queue.get(0);
+        MessageQueue Q2 = queue.get(1);
+        MessageQueue Q3 = queue.get(2);
+        MessageQueue Q4 = queue.get(3);
+        MessageQueue Q5 = queue.get(4);
+
+        double lengthQ1 = Q1.getQij1() + Q2.getQij1();
+        double R1 = Q1.getRij1() + Q2.getRij1();
+        double Delte1 = Q1.getDelte() + Q2.getDelte();
+
+        double lengthQ2 = Q3.getQij1() + Q4.getQij1() + Q5.getQij1();
+        double R2 = Q3.getRij1() + Q4.getRij1() + Q5.getRij1();
+        double Delte2 = Q3.getDelte() + Q4.getDelte() + Q5.getDelte();
+
+        double[] tmpW_1;  //第一轮
+        tmpW_1 = calculate(lengthQ1, R1, Delte1, lengthQ2, R2, Delte2, Q1.getT(), this.P);
+
+        lengthQ1 = Q1.getQij1();
+        R1 = Q1.getRij1();
+        Delte1 = Q1.getDelte();
+
+        lengthQ2 = Q2.getQij1();
+        R2 = Q2.getRij1();
+        Delte2 = Q2.getDelte();
+
+        // 计算出的Q1Q2的权值
+        double[] Q1Q2W = calculate(lengthQ1, R1, Delte1, lengthQ2, R2, Delte2, Q1.getT(), tmpW_1[0]);
+
+
+        Q1.setW((int) Q1Q2W[0]);
+        Q2.setW((int) Q1Q2W[1]);
+
+        lengthQ1 = Q3.getQij1() + Q4.getQij1();
+        R1 = Q3.getRij1() + Q4.getRij1();
+        Delte1 = Q3.getDelte() + Q4.getDelte();
+
+        lengthQ2 = Q5.getQij1();
+        R2 = Q5.getRij1();
+        Delte2 = Q5.getDelte();
+
+        //计算出Q3Q4的总权值以及Q5的权值
+        double[] tmpW_34_Q5 = calculate(lengthQ1, R1, Delte1, lengthQ2, R2, Delte2, Q1.getT(), tmpW_1[1]);
+        Q5.setW((int)tmpW_34_Q5[1]);
+
+        lengthQ1 = Q3.getQij1();
+        R1 = Q3.getRij1();
+        Delte1 = Q3.getDelte();
+
+        lengthQ2 = Q4.getQij1();
+        R2 = Q4.getRij1();
+        Delte2 = Q4.getDelte();
+
+        // 计算出Q3，Q4的权值
+        double[] Q3Q4W = calculate(lengthQ1, R1, Delte1, lengthQ2, R2, Delte2, Q1.getT(), tmpW_34_Q5[0]);
+        Q3.setW((int)Q3Q4W[0]);
+        Q4.setW((int)Q3Q4W[1]);
+
+        System.out.println("Q1权值:" + (int) Q1Q2W[0] + "，Q1长度:" + Q1.getQij1() + "，到达率:" + Q1.getRij1());
+        System.out.println("Q2权值:" + (int) Q1Q2W[1] + "，Q2长度:" + Q2.getQij1() + "，到达率:" + Q2.getRij1());
+        System.out.println("Q3权值:" + (int)Q3Q4W[0] + "，Q3长度:" + Q3.getQij1() + "，到达率:" + Q3.getRij1());
+        System.out.println("Q4权值:" + (int)Q3Q4W[1] + "，Q4长度:" + Q4.getQij1() + "，到达率:" + Q4.getRij1());
+        System.out.println("Q5权值:" + (int)tmpW_34_Q5[1] + "，Q5长度:" + Q5.getQij1() + "，到达率:" + Q5.getRij1());
+    }
+
     //每条队列的权值全部相同时的权值W计算
     public void sameWeightParameter(ArrayList<MessageQueue> queue) {
         ArrayList<Double> proportion = new ArrayList<Double>();
@@ -239,5 +322,20 @@ public class Server implements  Runnable {
             int tmpW = (int)(proportion.get(i) / total * this.P);
             queue.get(i).setW(tmpW);
         }
+    }
+
+    // 计算一元二次方程
+    double [] calculate(double lengthQ1, double R1, double Delte1, double lengthQ2, double R2, double Delte2, double T,double P) {
+        double[] W = new double[2];
+        double A = (lengthQ1 + R1 * T) * Delte2;
+        double B = (lengthQ2 + R2 * T) * Delte1;
+        double C = Delte1 - Delte2;
+        W[0] = ((C * P - A - B) + Math.sqrt((Math.pow((A + B -C * P), 2) + 4 * A * P * C))) / (2.0 * C);
+        W[1] = ((C *P + A + B) - Math.sqrt((Math.pow((A + B -C * P), 2) + 4 * A * P * C))) / (2.0 * C);
+        if(W[0] < 0 || W[1] < 0) {
+            W[0] = ((C * P - A - B) - Math.sqrt((Math.pow((A + B -C * P), 2) + 4 * A * P * C))) / (2.0 * C);
+            W[1] = ((C * P + A + B) + Math.sqrt((Math.pow((A + B -C * P), 2) + 4 * A * P * C))) / (2.0 * C);
+        }
+        return W;
     }
 }

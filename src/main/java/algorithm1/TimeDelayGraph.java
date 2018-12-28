@@ -42,9 +42,9 @@ public class TimeDelayGraph {
         ChartFactory.setChartTheme(mChartTheme1);
         CategoryDataset mDataset = GetDataset();
         JFreeChart mChart = ChartFactory.createLineChart(
-                "拥塞指数变化",//图名字
-                "时间（s）",//横坐标
-                "拥塞指数",//纵坐标
+                "平均时延变化",//图名字
+                "时间周期（s）",//横坐标
+                "消息平均时延（ms）",//纵坐标
                 mDataset,//数据集
                 PlotOrientation.VERTICAL,
                 true, // 显示图例
@@ -63,8 +63,8 @@ public class TimeDelayGraph {
         vn.setUpperMargin(0.1);
         vn.setLowerMargin(0.1);
         vn.setAutoRangeMinimumSize(20);//最小跨度
-        vn.setLowerBound(1000);//最小值显示
-        vn.setUpperBound(40000);
+        vn.setLowerBound(10);//最小值显示
+        vn.setUpperBound(25000);
         LineAndShapeRenderer lasp = (LineAndShapeRenderer) mPlot.getRenderer();// 获取显示线条的对象
         lasp.setBaseShapesVisible(true);// 设置拐点是否可见/是否显示拐点
         lasp.setDrawOutlines(true);// 设置拐点不同用不同的形状
@@ -85,8 +85,8 @@ public class TimeDelayGraph {
         domainAxis.setMaximumCategoryLabelLines(10);
 
         try {
-//            File file = new File("graph1.png");
-//            ChartUtilities.saveChartAsPNG(file,mChart,1028,600);//把报表保存为文件
+            File file = new File("delay.png");
+            ChartUtilities.saveChartAsPNG(file,mChart,1028,600);//把报表保存为文件
         } catch (Exception e) {
 
         }

@@ -45,8 +45,8 @@ public class WRRServer implements Runnable {
             while(Math.abs(count - P) >= 3) {
                 for(int i = 0; i < queue.size(); i++) {
                     MessageQueue tmpQ = queue.get(i);
-                    int WRRQuan = tmpQ.getWRRQuan();
-                    for(int j = 0; j < WRRQuan; j++) {
+//                    int WRRQuan = tmpQ.getWRRQuan();
+//                    for(int j = 0; j < WRRQuan; j++) {
                         String tmpStr = tmpQ.decrease();
                         if(tmpStr != null) {
                             count++;
@@ -54,7 +54,7 @@ public class WRRServer implements Runnable {
                             totalTime[i] += tmpTime - Long.parseLong(tmpStr);
                             speed[i]++;
                         }
-                    }
+//                    }
                 }
             }
 
