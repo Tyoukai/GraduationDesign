@@ -9,10 +9,10 @@ public class MessageQueue {
     private LinkedList<String> queue = new LinkedList<String>();
     private int W; //记录每次轮询的权重
     private int C; //记录每次轮询的计数器
-    private int Qij1; //记录上一时间片段的队列长度
-    private int Qij2; //记录上上次时间片段的队列长度
-    private double Rij1; //记录上一次时间片段中消息的到达时间速率
-    private double Rij2; //记录上上次时间片段中消息到达的时间速率
+    private int Qij1; //记录当前周期开始的队列长度
+    private int Qij2; //记录上一周期开始的队列长度
+    private double Rij1; //记录当前周期消息的到达速率
+    private double Rij2; //记录上一周期消息放入到达速率
     private String type = Constant.STATIONARY; // 记录队列的类别，是泊松过程，还是平稳过程
     private double lamda = 10; // 对应泊松过程的lamda
     private double delte = 1; //记录每个队列的拥塞指数
@@ -40,8 +40,13 @@ public class MessageQueue {
     }
 
     //获取队列的第一个元素并移除
-    public String getHead() {
+    public String pollHead() {
         return queue.poll();
+    }
+
+    // 取出队列的第一个元素
+    public String getHead() {
+        return queue.getFirst();
     }
 
     //在尾部添加一个元素
