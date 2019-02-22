@@ -12,6 +12,7 @@ public class Server implements  Runnable {
     //用来存放队列
     private ArrayList<MessageQueue> queue ;
     private int P = 50000; //单服务器T时间内的平均处理消息个数
+    private int type = 0; // 表示使用基于紧急指数的--》0，还是BPR--》1
 
 
     Server() {
@@ -38,6 +39,14 @@ public class Server implements  Runnable {
 
     public void setP(int p) {
         P = p;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     //删除一个队列
@@ -70,11 +79,11 @@ public class Server implements  Runnable {
                         numOfQueueEndInOneCycle++;
                         continue;
                      }
-                     String message = tmpQueue.getAndDecrease();
+                    String message = tmpQueue.getAndDecrease();
                     long cuTime = System.currentTimeMillis();
                     totalTime[i] += cuTime - Long.parseLong(message);
-                     speed[i]++;
-                     count++;
+                    speed[i]++;
+                    count++;
                     if(tmpQueue.getC() <= 0  || count >= P) {
                         flag[i] = 1;
                         numOfQueueEndInOneCycle++;
@@ -82,7 +91,7 @@ public class Server implements  Runnable {
                 }
             }
 
-            System.out.println("count1:" + count);
+            System.out.println("count:" + count);
             for(int i = 0; i < queue.size(); i++) {
                 MessageQueue tmpQueue = queue.get(i);
                 System.out.println("C" + i + ":" + tmpQueue.getC());
@@ -165,6 +174,11 @@ public class Server implements  Runnable {
                 twoQueueParameter(queue);
             } else if (queue.size() == 3) { //系统为三队列时
                 threeQueueParameter(queue);
+            } else if(queue.size() == 4) { //系统为四队列时--》采用新的算法
+                if(this.type == 0)
+                    fourQueueParameter(queue);
+                else
+                    BPR(queue);
             } else if(queue.size() == 5) { // 系统为五队列时
                 fiveQueueParameter(queue);
             }
@@ -240,6 +254,142 @@ public class Server implements  Runnable {
         Q1.setW(W1);
         Q2.setW(W2);
         Q3.setW(W3);
+    }
+
+    // 计算并更新系统有四个队列时的权值W
+    public void fourQueueParameter(ArrayList<MessageQueue> queue) {
+        MessageQueue Q1 = queue.get(0);
+        MessageQueue Q2 = queue.get(1);
+        MessageQueue Q3 = queue.get(2);
+        MessageQueue Q4 = queue.get(3);
+
+        double Wnew1 = getNewW(queue, Q1);
+        double Wnew2 = getNewW(queue, Q2);
+        double Wnew3 = getNewW(queue, Q3);
+        double Wnew4 = getNewW(queue, Q4);
+
+        System.out.println("Wnew1:" + Wnew1);
+        System.out.println("Wnew2:" + Wnew2);
+        System.out.println("Wnew3:" + Wnew3);
+        System.out.println("Wnew4:" + Wnew4);
+
+//        double A12 = Q1.getDelte() * Wnew1 / (Q2.getDelte() * Wnew2);
+//        double A23 = Q2.getDelte() * Wnew2 / (Q3.getDelte() * Wnew3);
+//        double A34 = Q3.getDelte() * Wnew3 / (Q4.getDelte() * Wnew4);
+//
+//        System.out.println("A12:" + A12);
+//        System.out.println("A23:" + A23);
+//        System.out.println("A34:" + A34);
+//
+//        //利用高斯赛德尔逼近法求解
+//
+//        double error = 10; //迭代终止的误差
+//        double W1 = 0, W2 = 0, W3 = 0,W4 = 0;
+//        int times = 0; // 当前迭代次数
+//        int totalTimes = 10000; // 最大迭代次数
+//
+//        System.out.println("111:" + (Q1.getQij1() + Q1.getRij1() * Q1.getT()));
+//        System.out.println("1111:" + (A12 * (Q2.getQij1() + Q2.getRij1() * Q2.getT())));
+//
+//        System.out.println("222:" + (Q3.getQij1() + Q3.getRij1() * Q3.getT()));
+//        System.out.println("2222:" + (A34 * (Q4.getQij1() + Q4.getRij1() * Q4.getT())));
+//
+//        System.out.println("333:" + (Q2.getQij1() + Q2.getRij1() * Q2.getT()));
+//        System.out.println("3333:" + (A23 * (Q3.getQij1() + Q3.getRij1() * Q3.getT())));
+//
+//        while(Math.abs(W1 + W2 + W3 + W4 - this.P) > error && times < totalTimes) {
+//            W1 = Q1.getQij1() + Q1.getRij1() * Q1.getT() + A12 * W2 - A12 * (Q2.getQij1() + Q2.getRij1() * Q2.getT());
+//            W4 = this.P - W1 - W2 - W3;
+//            W3 = Q3.getQij1() + Q3.getRij1() * Q3.getT() + A34 * W4 - A34 * (Q4.getQij1() + Q4.getRij1() * Q4.getT());
+//            W2 = Q2.getQij1() + Q2.getRij1() * Q2.getT() + A23 * W3 - A23 * (Q3.getQij1() + Q3.getRij1() * Q3.getT());
+//            times++;
+//        }
+
+        double W1 = 0, W2 = 0, W3 = 0,W4 = 0;
+        double A21 = (Q2.getQij1() + Q2.getRij2() * Q2.getT() - Wnew2) /
+                (Q1.getQij1() + Q1.getRij1() * Q1.getT() - Wnew1) * Q1.getDelte() / Q2.getDelte();
+
+        double A31 = (Q3.getQij1() + Q3.getRij2() * Q3.getT() - Wnew3) /
+                (Q1.getQij1() + Q1.getRij1() * Q1.getT() - Wnew1) * Q1.getDelte() / Q3.getDelte();
+
+        double A41 = (Q4.getQij1() + Q4.getRij2() * Q4.getT() - Wnew4) /
+                (Q1.getQij1() + Q1.getRij1() * Q1.getT() - Wnew1) * Q1.getDelte() / Q4.getDelte();
+
+        W1 = this.P / (A21 + A31 + A41 +1);
+        W2 = A21 * W1;
+        W3 = A31 * W1;
+        W4 = A41 * W1;
+
+        System.out.println("W1:" + W1);
+        System.out.println("W2:" + W2);
+        System.out.println("W3:" + W3);
+        System.out.println("W4:" + W4);
+
+        Q1.setW((int)W1);
+        Q2.setW((int)W2);
+        Q3.setW((int)W3);
+        Q4.setW((int)W4);
+    }
+
+    // 获取新的W值
+    public double getNewW(ArrayList<MessageQueue> queue, MessageQueue mq) {
+        double alpha = 0.5;
+        double beta = 0.5;
+
+        double firstDen = 0; // 第一项分母
+        double secondDen = 0; // 第二项分母
+        double thirdDen = 0; // 第三项分母
+        double forthDen = 0; // 第四项分母
+
+        for(int i = 0; i < queue.size(); i++) {
+            MessageQueue tmp = queue.get(i);
+            firstDen += tmp.getDelte() * tmp.getRij1();
+            secondDen += tmp.getDelte() * tmp.getRij2();
+            thirdDen += tmp.getDelte() * tmp.getQij1();
+            forthDen += tmp.getDelte() * tmp.getQij2();
+        }
+
+        double first = mq.getDelte() * mq.getRij1() / firstDen;
+        double second = mq.getDelte() * mq.getRij2() / secondDen;
+        double third = mq.getDelte() * mq.getQij1() / thirdDen;
+        double forth = mq.getDelte() * mq.getQij2() / forthDen;
+
+        double exponent = alpha * (first - second) + beta * (third - forth); //计算出来的指数
+
+        return mq.getW() * Math.pow(Math.E, exponent);
+    }
+
+    // 使用BPR算法
+    public void BPR(ArrayList<MessageQueue> queue) {
+        MessageQueue Q1 = queue.get(0);
+        MessageQueue Q2 = queue.get(1);
+        MessageQueue Q3 = queue.get(2);
+        MessageQueue Q4 = queue.get(3);
+
+        long curTime = System.currentTimeMillis();
+        double T1 = curTime - Long.parseLong(Q1.getHead());
+        double T2 = curTime - Long.parseLong(Q2.getHead());
+        double T3 = curTime - Long.parseLong(Q3.getHead());
+        double T4 = curTime - Long.parseLong(Q4.getHead());
+
+        double p12 = T1 * Q2.getDelte() / (T2 * Q1.getDelte());
+        double p32 = T3 * Q2.getDelte() / (T2 * Q3.getDelte());
+        double p42 = T4 * Q2.getDelte() / (T2 * Q4.getDelte());
+
+        double W2 = this.P / (p12 + 1 + p32 + p42);
+        double W1 = p12 * W2;
+        double W3 = p32 * W2;
+        double W4 = p42 * W2;
+
+        System.out.println("W1:" + W1);
+        System.out.println("W2:" + W2);
+        System.out.println("W3:" + W3);
+        System.out.println("W4:" + W4);
+
+        Q1.setW((int)W1);
+        Q2.setW((int)W2);
+        Q3.setW((int)W3);
+        Q4.setW((int)W4);
     }
 
     //计算并更新系统有五个队列时的权值W
