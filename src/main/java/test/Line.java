@@ -24,9 +24,9 @@ public class Line {
         ChartFactory.setChartTheme(mChartTheme);
         CategoryDataset mDataset = GetDataset();
         JFreeChart mChart = ChartFactory.createLineChart(
-                "拥塞指数变化",//图名字
-                "时间（s）",//横坐标
-                "拥塞指数",//纵坐标
+                "紧急指数变化",//图名字
+                "时间周期（s）",//横坐标
+                "紧急指数",//纵坐标
                 mDataset,//数据集
                 PlotOrientation.VERTICAL,
                 true, // 显示图例
@@ -45,8 +45,8 @@ public class Line {
         vn.setUpperMargin(0.1);
         vn.setLowerMargin(0.1);
         vn.setAutoRangeMinimumSize(20);//最小跨度
-        vn.setLowerBound(1000);//最小值显示
-        vn.setUpperBound(90000);
+        vn.setLowerBound(0);//最小值显示
+        vn.setUpperBound(13);
         LineAndShapeRenderer lasp = (LineAndShapeRenderer) mPlot.getRenderer();// 获取显示线条的对象
         lasp.setBaseShapesVisible(true);// 设置拐点是否可见/是否显示拐点
         lasp.setDrawOutlines(true);// 设置拐点不同用不同的形状
@@ -72,7 +72,7 @@ public class Line {
         } catch (Exception e) {
 
         }
-        ChartFrame mChartFrame = new ChartFrame("拥塞指数图", mChart);
+        ChartFrame mChartFrame = new ChartFrame("紧急指数图", mChart);
         mChartFrame.pack();
         mChartFrame.setVisible(true);
     }
@@ -88,7 +88,7 @@ public class Line {
 
             while((line = br.readLine()) != null) {
                 double exponent = Double.parseDouble(line.split("____")[2]);
-//                if(time % 2 == 0)
+                if(time % 2 == 0)
                     mDataset.addValue(exponent, "Q1", time + "");
 //                else
 //                    mDataset.addValue(exponent, "Q1", " ");
@@ -102,13 +102,42 @@ public class Line {
             time = 1;
             while((line = br1.readLine()) != null) {
                 double exponent = Double.parseDouble(line.split("____")[2]);
-//                if(time % 2 == 0)
+                if(time % 2 == 0)
                     mDataset.addValue(exponent, "Q2", time + "");
 //                else
 //                    mDataset.addValue(exponent, "Q2", " ");
                 time++;
             }
             br1.close();
+
+            FileInputStream fis2 = new FileInputStream("q3.txt");
+            InputStreamReader isr2 = new InputStreamReader(fis2);
+            BufferedReader br2 = new BufferedReader(isr2);
+            time = 1;
+            while((line = br2.readLine()) != null) {
+                double exponent = Double.parseDouble(line.split("____")[2]);
+                if(time % 2 == 0)
+                    mDataset.addValue(exponent, "Q3", time + "");
+//                else
+//                    mDataset.addValue(exponent, "Q2", " ");
+                time++;
+            }
+            br2.close();
+
+            FileInputStream fis3 = new FileInputStream("q4.txt");
+            InputStreamReader isr3 = new InputStreamReader(fis3);
+            BufferedReader br3 = new BufferedReader(isr3);
+            time = 1;
+            while((line = br3.readLine()) != null) {
+                double exponent = Double.parseDouble(line.split("____")[2]);
+                if(time % 2 == 0)
+                mDataset.addValue(exponent, "Q4", time + "");
+//                else
+//                    mDataset.addValue(exponent, "Q2", " ");
+                time++;
+            }
+            br3.close();
+
         } catch (Exception e) {
 
         }
