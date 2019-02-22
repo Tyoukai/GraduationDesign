@@ -23,12 +23,14 @@ public class Possion {
     }
 
     public static void main(String[] args) {
-        for(int i = 0; i < 100; i++) {
+        long s = System.currentTimeMillis();
+        for(int i = 0; i < 200; i++) {
             //long start = System.currentTimeMillis();
-            int tmp = getPossionVariable(30);
-            System.out.println(tmp);
+            int tmp = getPossionVariable(200);
+            //System.out.println(tmp);
             //long end = System.currentTimeMillis();
             //System.out.println(end - start);
         }
+        System.out.println(System.currentTimeMillis() - s);
     }
 }
