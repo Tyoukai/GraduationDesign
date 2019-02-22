@@ -84,14 +84,14 @@ public class ProportionGraph {
     public static CategoryDataset GetDataset() {
         DefaultCategoryDataset mDataset = new DefaultCategoryDataset();
         try {
-            FileInputStream fis = new FileInputStream("q3.txt");
+            FileInputStream fis = new FileInputStream("q2.txt");
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader br = new BufferedReader(isr);
             String line = "";
             String line1 = "";
             int time = 1;
 
-            FileInputStream fis1 = new FileInputStream("q4.txt");
+            FileInputStream fis1 = new FileInputStream("q3.txt");
             InputStreamReader isr1 = new InputStreamReader(fis1);
             BufferedReader br1 = new BufferedReader(isr1);
 
