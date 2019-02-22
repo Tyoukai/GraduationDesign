@@ -26,7 +26,8 @@ public class Producer implements Runnable {
                 int number = 0; // 时间T内的消息个数
                 int count = 0; //计数器
                 if(queue.getType().equals(Constant.POSSION)) { //泊松过程
-                    number = Possion.getPossionVariable(queue.getLamda()); //T时间内产生的消息个数
+                    for(int i = 0; i < queue.getLamda() / 100; i++)
+                        number += Possion.getPossionVariable(100); //T时间内产生的消息个数
                 } else if(queue.getType().equals(Constant.STATIONARY)) { //平稳过程
                     number = queue.getNumber();
                 }
