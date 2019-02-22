@@ -63,8 +63,8 @@ public class TimeDelayGraph {
         vn.setUpperMargin(0.1);
         vn.setLowerMargin(0.1);
         vn.setAutoRangeMinimumSize(20);//最小跨度
-        vn.setLowerBound(10);//最小值显示
-        vn.setUpperBound(25000);
+        vn.setLowerBound(0);//最小值显示
+        vn.setUpperBound(10000);
         LineAndShapeRenderer lasp = (LineAndShapeRenderer) mPlot.getRenderer();// 获取显示线条的对象
         lasp.setBaseShapesVisible(true);// 设置拐点是否可见/是否显示拐点
         lasp.setDrawOutlines(true);// 设置拐点不同用不同的形状
@@ -85,8 +85,8 @@ public class TimeDelayGraph {
         domainAxis.setMaximumCategoryLabelLines(10);
 
         try {
-            File file = new File("delay.png");
-            ChartUtilities.saveChartAsPNG(file,mChart,1028,600);//把报表保存为文件
+//            File file = new File("delay.png");
+//            ChartUtilities.saveChartAsPNG(file,mChart,1028,600);//把报表保存为文件
         } catch (Exception e) {
 
         }
@@ -110,7 +110,8 @@ public class TimeDelayGraph {
                     time.put(tmpStr[1], 1);
                 }
                 double exponent = Double.parseDouble(tmpStr[0]);
-                mDataset.addValue(exponent, tmpStr[1], time.get(tmpStr[1]));
+                if(time.get(tmpStr[1]) % 2 == 0)
+                    mDataset.addValue(exponent, tmpStr[1], time.get(tmpStr[1]));
                 time.put(tmpStr[1], (time.get(tmpStr[1]) + 1));
             }
             br.close();
