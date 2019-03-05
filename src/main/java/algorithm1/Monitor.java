@@ -43,12 +43,12 @@ public class Monitor implements Runnable{
             long sTime = System.currentTimeMillis();
             long eTime = System.currentTimeMillis();
             int flag = 0;
-            while(eTime - sTime < 90000) {
-                if(eTime -sTime >= 30000 && flag == 0) {
-//                    q1.setNumber(5000);
-//                    q2.setNumber(9000);
-//                    q3.setNumber(4000);
-//                    q4.setNumber(10000);
+            while(eTime - sTime < 120000) {
+                if(eTime -sTime >= 60000 && flag == 0) {
+                    q1.setNumber(25000);
+                    q2.setNumber(15000);
+                    q3.setNumber(7500);
+                    q4.setNumber(2500);
                     flag = 1;
                 }
                 Thread.sleep(1000);
@@ -67,13 +67,13 @@ public class Monitor implements Runnable{
                 fw3.write(q3Length + "____" + q3W + "____" + (q3Length / q3W) + "\r\n");
                 fw4.write(q4Length + "____" + q4W + "____" + (q4Length / q4W) + "\r\n");
 
-                System.out.println("q1长度                    到达速率                    拥塞指数");
+                System.out.println("q1长度                    到达速率                    紧急指数");
                 System.out.println(q1Length + "                    " + q1.getRij1() + "                    " + (q1Length / q1W));
-                System.out.println("q2长度                    到达速率                    拥塞指数");
+                System.out.println("q2长度                    到达速率                    紧急指数");
                 System.out.println(q2Length + "                    " + q2.getRij1() + "                    " + (q2Length / q2W));
-                System.out.println("q3长度                    到达速率                    拥塞指数");
+                System.out.println("q3长度                    到达速率                    紧急指数");
                 System.out.println(q3Length + "                    " + q3.getRij1() + "                    " + (q3Length / q3W));
-                System.out.println("q4长度                    到达速率                    拥塞指数");
+                System.out.println("q4长度                    到达速率                    紧急指数");
                 System.out.println(q4Length + "                    " + q4.getRij1() + "                    " + (q4Length / q4W));
                 System.out.println();
                 eTime = System.currentTimeMillis();

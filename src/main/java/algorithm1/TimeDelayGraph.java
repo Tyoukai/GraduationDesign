@@ -85,8 +85,8 @@ public class TimeDelayGraph {
         domainAxis.setMaximumCategoryLabelLines(10);
 
         try {
-//            File file = new File("delay.png");
-//            ChartUtilities.saveChartAsPNG(file,mChart,1028,600);//把报表保存为文件
+            File file = new File("delay.png");
+            ChartUtilities.saveChartAsPNG(file,mChart,1028,600);//把报表保存为文件
         } catch (Exception e) {
 
         }
@@ -117,7 +117,7 @@ public class TimeDelayGraph {
             br.close();
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         return mDataset;
     }

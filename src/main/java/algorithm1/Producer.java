@@ -33,9 +33,21 @@ public class Producer implements Runnable {
                 }
 
                 long startTime = System.currentTimeMillis();
+                int hasPutData = 0;
                 for(int i = 0; i < number; i++) {
                     long tmpTime = System.currentTimeMillis();
                     queue.addTail(tmpTime + "");
+                    hasPutData++;
+                    if(hasPutData >= 1000) {
+                        try {
+//                            System.out.println("hasPutData:" + hasPutData);
+//                            Thread.sleep(40);
+                            hasPutData = 0;
+                        } catch (Exception e) {
+
+                        }
+                    }
+
                     count++;
 //                    if(count > numOfEachMilli) {
 //                        try {
@@ -50,6 +62,7 @@ public class Producer implements Runnable {
 
                 if(endTime - startTime < queue.getT()) {
                     try {
+                        System.out.println("时间：" + ((long)queue.getT() - endTime + startTime));
                         Thread.sleep((long)queue.getT() - endTime + startTime - 10);
 //                        System.out.println("睡眠时间：" + (queue.getT() - endTime + startTime));
                     } catch (InterruptedException e) {

@@ -8,6 +8,7 @@ import java.util.LinkedList;
 public class MessageQueue {
     private LinkedList<String> queue = new LinkedList<String>();
     private int W; //记录每次轮询的权重
+    private int urrW; // 记录URR算法的队列权重
     private int C; //记录每次轮询的计数器
     private int Qij1; //记录当前周期开始的队列长度
     private int Qij2; //记录上一周期开始的队列长度
@@ -23,6 +24,8 @@ public class MessageQueue {
     private long endTime = 0; //周期结束的时间
     private int count = 0; // 在开始跟结束时间内进入队列的消息个数
     private String name = ""; //队列的名字
+    private double Uindex = 0; //每周期中的紧急指数
+    private double PFWRRW = 0; // PFWRR算法的队列权值
 
 
     MessageQueue() {
@@ -198,5 +201,29 @@ public class MessageQueue {
 
     public void setWRRQuan(int WRRQuan) {
         this.WRRQuan = WRRQuan;
+    }
+
+    public double getUindex() {
+        return Uindex;
+    }
+
+    public void setUindex(double uindex) {
+        Uindex = uindex;
+    }
+
+    public int getUrrW() {
+        return urrW;
+    }
+
+    public void setUrrW(int urrW) {
+        this.urrW = urrW;
+    }
+
+    public double getPFWRRW() {
+        return PFWRRW;
+    }
+
+    public void setPFWRRW(double PFWRRW) {
+        this.PFWRRW = PFWRRW;
     }
 }

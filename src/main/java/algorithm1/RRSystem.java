@@ -14,48 +14,56 @@ public class RRSystem {
     public static void main(String[] args) throws Exception {
         // 队列1消息到达为平稳过程，均值到达速率 20000，权重为1
         MessageQueue q1 = new MessageQueue(Constant.STATIONARY);
-        q1.setNumber(20000);
+        q1.setNumber(30000);
         q1.setLamda(20000);
         q1.setDelte(1);
         q1.setC(0);
-        q1.setName("q1");
+        q1.setName("Q1");
         q1.setWRRQuan(1);
         q1.setRij1(20);
         q1.setRij2(20);
+        q1.setUrrW(26666);
+        q1.setPFWRRW(1);
 
 
         // 队列2消息到达为平稳过程，均值到达速率为15000，权重为2
         MessageQueue q2 = new MessageQueue(Constant.STATIONARY);
-        q2.setNumber(15000);
+        q2.setNumber(10000);
         q2.setLamda(15000);
         q2.setDelte(2);
         q2.setC(0);
-        q2.setName("q2");
+        q2.setName("Q2");
         q2.setWRRQuan(1);
         q2.setRij1(15);
         q2.setRij2(15);
+        q2.setUrrW(13333);
+        q2.setPFWRRW(2);
 
         // 队列3消息到达为平稳过程，均值到达速率为10000，权重为4
         MessageQueue q3 = new MessageQueue(Constant.STATIONARY);
-        q3.setNumber(10000);
+        q3.setNumber(5000);
         q3.setLamda(10000);
         q3.setDelte(4);
         q3.setC(0);
-        q3.setName("q3");
+        q3.setName("Q3");
         q3.setWRRQuan(1);
         q3.setRij1(10);
         q3.setRij2(10);
+        q3.setUrrW(5000);
+        q3.setPFWRRW(4);
 
         // 队列4消息到达为平稳过程，均值到达速率为5000，权重为8
         MessageQueue q4 = new MessageQueue(Constant.STATIONARY);
         q4.setNumber(5000);
-        q4.setLamda(5000);
+        q4.setLamda(2500);
         q4.setDelte(8);
         q4.setC(0);
-        q4.setName("q4");
+        q4.setName("Q4");
         q4.setWRRQuan(1);
         q4.setRij1(5);
         q4.setRij2(5);
+        q4.setUrrW(3333);
+        q4.setPFWRRW(8);
 
         ArrayList<MessageQueue> queues = new ArrayList<MessageQueue>();
         queues.add(q1);
@@ -63,9 +71,11 @@ public class RRSystem {
         queues.add(q3);
         queues.add(q4);
 
-        Server server = new Server(queues, 50000);
+        Server server = new Server(queues, 50000); // 成比例的紧急指数算法，BPR以及PFWRR算法
 
-//        WRRServer wrrServer = new WRRServer(queues, 40000);
+//        WRRServer wrrServer = new WRRServer(queues, 40000); // 传统的RR算法
+
+//        URRServer urrServer = new URRServer(queues, 50000); // URR算法
 
         String message = "";
 
@@ -82,10 +92,11 @@ public class RRSystem {
             tmp.setQij1(tmp.getLength());
         }
 
-        new Thread(server).start(); // 拥塞指数算法
+        new Thread(server).start(); // 成比例的紧急指数算法
 //        new Thread(wrrServer).start(); // 传统的RR算法
+//        new Thread(urrServer).start(); // 紧急指数算法
 
-        new Thread(monitor).start();
+//        new Thread(monitor).start();
 
         while(true) {
             Thread.sleep(1000);
@@ -96,6 +107,5 @@ public class RRSystem {
 //            q1.setNumber(num1);
 //            q2.setNumber(num2);
         }
-
     }
 }

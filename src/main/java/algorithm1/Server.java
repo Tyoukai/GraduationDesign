@@ -12,7 +12,7 @@ public class Server implements  Runnable {
     //用来存放队列
     private ArrayList<MessageQueue> queue ;
     private int P = 50000; //单服务器T时间内的平均处理消息个数
-    private int type = 0; // 表示使用基于紧急指数的--》0，还是BPR--》1
+    private int type = 2; // 表示使用基于紧急指数的--》0，基于时间的BPR--》1, 基于队列长度的BPR--》2， type-》3 PFWRR
 
 
     Server() {
@@ -175,10 +175,14 @@ public class Server implements  Runnable {
             } else if (queue.size() == 3) { //系统为三队列时
                 threeQueueParameter(queue);
             } else if(queue.size() == 4) { //系统为四队列时--》采用新的算法
-                if(this.type == 0)
+                if(this.type == 0) // 基于紧急指数
                     fourQueueParameter(queue);
-                else
-                    BPR(queue);
+                else if (this.type == 1) // 基于时间的BPR
+                    BPR_Time(queue);
+                else if(this.type == 2) // 基于队列长度的BPR
+                    BPR_Length(queue);
+                else if(this.type == 3) // PFWRR算法
+                    PFWRR(queue);
             } else if(queue.size() == 5) { // 系统为五队列时
                 fiveQueueParameter(queue);
             }
@@ -267,6 +271,14 @@ public class Server implements  Runnable {
         double Wnew2 = getNewW(queue, Q2);
         double Wnew3 = getNewW(queue, Q3);
         double Wnew4 = getNewW(queue, Q4);
+//        if(Wnew1 < 0)
+//            Wnew1 = 0;
+//        if(Wnew2 < 0)
+//            Wnew2 = 0;
+//        if(Wnew3 < 0)
+//            Wnew3 = 0;
+//        if(Wnew4 < 0)
+//            Wnew4 = 0;
 
         System.out.println("Wnew1:" + Wnew1);
         System.out.println("Wnew2:" + Wnew2);
@@ -315,6 +327,27 @@ public class Server implements  Runnable {
         double A41 = (Q4.getQij1() + Q4.getRij2() * Q4.getT() - Wnew4) /
                 (Q1.getQij1() + Q1.getRij1() * Q1.getT() - Wnew1) * Q1.getDelte() / Q4.getDelte();
 
+//        System.out.println("Q1.getQij1():" + Q1.getQij1());
+//        System.out.println("Q1.getRij2():" + Q1.getRij2());
+//        System.out.println("Wnew1:" + Wnew1);
+//
+//        System.out.println("A21:" + A21);
+//        System.out.println("A31:" + A31);
+//        System.out.println("A41:" + A41);
+
+        if(A21 <= 0) {
+            A21 = (Q2.getQij1() + Q2.getRij2() * Q2.getT()) /
+                    (Q1.getQij1() + Q1.getRij1() * Q1.getT()) * Q1.getDelte() / Q2.getDelte();
+        }
+        if(A31 <= 0) {
+            A31 = (Q3.getQij1() + Q3.getRij2() * Q3.getT()) /
+                    (Q1.getQij1() + Q1.getRij1() * Q1.getT()) * Q1.getDelte() / Q3.getDelte();
+        }
+        if(A41 <= 0) {
+            A41 = (Q4.getQij1() + Q4.getRij2() * Q4.getT()) /
+                    (Q1.getQij1() + Q1.getRij1() * Q1.getT()) * Q1.getDelte() / Q4.getDelte();
+        }
+
         W1 = this.P / (A21 + A31 + A41 +1);
         W2 = A21 * W1;
         W3 = A31 * W1;
@@ -360,7 +393,7 @@ public class Server implements  Runnable {
     }
 
     // 使用BPR算法
-    public void BPR(ArrayList<MessageQueue> queue) {
+    public void BPR_Time(ArrayList<MessageQueue> queue) {
         MessageQueue Q1 = queue.get(0);
         MessageQueue Q2 = queue.get(1);
         MessageQueue Q3 = queue.get(2);
@@ -390,6 +423,67 @@ public class Server implements  Runnable {
         Q2.setW((int)W2);
         Q3.setW((int)W3);
         Q4.setW((int)W4);
+    }
+
+    // 基于队列长度的BPR
+    public void BPR_Length(ArrayList<MessageQueue> queue) {
+        MessageQueue Q1 = queue.get(0);
+        MessageQueue Q2 = queue.get(1);
+        MessageQueue Q3 = queue.get(2);
+        MessageQueue Q4 = queue.get(3);
+
+        double p12 = Q2.getDelte() * Q1.getQij1() / (Q1.getDelte() * Q2.getQij1());
+        double p32 = Q2.getDelte() * Q3.getQij1() / (Q3.getDelte() * Q2.getQij1());
+        double p42 = Q2.getDelte() * Q4.getQij1() / (Q4.getDelte() * Q2.getQij1());
+
+        double W2 = this.P / (p12 + 1 + p32 + p42);
+        double W1 = p12 * W2;
+        double W3 = p32 * W2;
+        double W4 = p42 * W2;
+
+        System.out.println("W1:" + W1);
+        System.out.println("W2:" + W2);
+        System.out.println("W3:" + W3);
+        System.out.println("W4:" + W4);
+
+        Q1.setW((int)W1);
+        Q2.setW((int)W2);
+        Q3.setW((int)W3);
+        Q4.setW((int)W4);
+    }
+
+    // PFWRR算法
+    public void PFWRR(ArrayList<MessageQueue> queues) {
+        MessageQueue Q1 = queues.get(0);
+        MessageQueue Q2 = queues.get(1);
+        MessageQueue Q3 = queues.get(2);
+        MessageQueue Q4 = queues.get(3);
+        double k1 = 0, k2 = 0, k3 = 0, k4 = 0;
+        k1 = Q1.getPFWRRW() * Q1.getRij1();
+        k2 = Q2.getPFWRRW() * Q2.getRij1();
+        k3 = Q3.getPFWRRW() * Q3.getRij1();
+        k4 = Q4.getPFWRRW() * Q4.getRij1();
+
+        double W1 = 0, W2 = 0, W3 = 0, W4 = 0;
+
+        int count = 0;
+        int error = 10;
+        while(count <= 1000  && Math.abs(this.P - W1 - W2 - W3 - W4) > error) {
+            W2 = k2 / k3 * W3 +Q2.getRij1()*Q2.getT() - k2 / k3 * Q3.getRij1() * Q3.getT();
+            W1 = k1 / k2 * W2 +Q1.getRij1()*Q1.getT() - k1 / k2 * Q2.getRij1() * Q2.getT();
+            W4 = this.P - W1 - W2 -W3;
+            W3 = k3 / k4 * W4 +Q3.getRij1()*Q3.getT() - k3 / k4 * Q4.getRij1() * Q4.getT();
+        }
+
+        System.out.println("W1:" + W1);
+        System.out.println("W2:" + W2);
+        System.out.println("W3:" + W3);
+        System.out.println("W4:" + W4);
+
+        Q1.setW((int) W1);
+        Q2.setW((int) W2);
+        Q3.setW((int) W3);
+        Q4.setW((int) W4);
     }
 
     //计算并更新系统有五个队列时的权值W
