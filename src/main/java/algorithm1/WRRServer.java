@@ -20,9 +20,12 @@ public class WRRServer implements Runnable {
     public void run() {
         int count = 0;
         File file = new File("time_delay.txt"); // src\main\resources\q1.txt
+        File file1 = new File("Q_length.txt");
         FileWriter fw = null;
+        FileWriter fw1 = null;
         try {
             fw = new FileWriter(file.getName(), true);
+            fw1 = new FileWriter(file1.getName(), true);
         } catch(Exception e) {
         }
         double[] totalTime = new double[queue.size()];
@@ -72,9 +75,12 @@ public class WRRServer implements Runnable {
             count = 0;
             for(int i = 0; i < queue.size(); i++) {
                 double delay = totalTime[i] / speed[i];
+                System.out.println("speed[" + i + "]:" + speed[i]);
                 try {
                     fw.write(delay + "____Q" + (i + 1) + "\r\n");
                     fw.flush();
+                    fw1.write(queue.get(i).getLength() + "____Q" + (i + 1) + "\r\n");
+                    fw1.flush();
                 } catch(Exception e) {
                 }
                 totalTime[i] = 0;

@@ -36,15 +36,15 @@ public class TimeDelayGraph {
 
     public static void main(String[] args) {
         StandardChartTheme mChartTheme1 = new StandardChartTheme("CN");
-        mChartTheme1.setLargeFont(new Font("黑体", Font.BOLD, 20));
+        mChartTheme1.setLargeFont(new Font("宋体", Font.PLAIN, 15));
         mChartTheme1.setExtraLargeFont(new Font("宋体", Font.PLAIN, 15));
-        mChartTheme1.setRegularFont(new Font("宋体", Font.PLAIN, 15));
+        mChartTheme1.setRegularFont(new Font("Times New Roman", Font.PLAIN, 15));
         ChartFactory.setChartTheme(mChartTheme1);
         CategoryDataset mDataset = GetDataset();
         JFreeChart mChart = ChartFactory.createLineChart(
                 "平均时延变化",//图名字
-                "时间周期（s）",//横坐标
-                "消息平均时延（ms）",//纵坐标
+                "时间周期(s)",//横坐标
+                "消息平均时延(ms)",//纵坐标
                 mDataset,//数据集
                 PlotOrientation.VERTICAL,
                 true, // 显示图例
@@ -64,7 +64,7 @@ public class TimeDelayGraph {
         vn.setLowerMargin(0.1);
         vn.setAutoRangeMinimumSize(20);//最小跨度
         vn.setLowerBound(0);//最小值显示
-        vn.setUpperBound(10000);
+        vn.setUpperBound(15000);
         LineAndShapeRenderer lasp = (LineAndShapeRenderer) mPlot.getRenderer();// 获取显示线条的对象
         lasp.setBaseShapesVisible(true);// 设置拐点是否可见/是否显示拐点
         lasp.setDrawOutlines(true);// 设置拐点不同用不同的形状
@@ -78,8 +78,8 @@ public class TimeDelayGraph {
         domainAxis.setLowerMargin(-0.08);
 
         domainAxis.setCategoryMargin(0.5);
-        domainAxis.setLabelFont(new Font("宋体", Font.CENTER_BASELINE, 15)); // 设置横轴字体
-        domainAxis.setTickLabelFont(new Font("宋体", Font.PLAIN, 10));// 设置坐标轴标尺值字体
+        domainAxis.setLabelFont(new Font("宋体",Font.PLAIN, 15)); // 设置横轴字体
+        domainAxis.setTickLabelFont(new Font("Times New Roman", Font.PLAIN, 15));// 设置坐标轴标尺值字体
         domainAxis.setLowerMargin(0.01);// 左边距 边框距离
         domainAxis.setUpperMargin(0.06);// 右边距 边框距离,防止最后边的一个数据靠近了坐标轴。
         domainAxis.setMaximumCategoryLabelLines(10);
