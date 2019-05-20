@@ -20,15 +20,15 @@ public class ProportionGraph {
 
     public static void main(String[] args) {
         StandardChartTheme mChartTheme = new StandardChartTheme("CN");
-        mChartTheme.setLargeFont(new Font("黑体", Font.BOLD, 20));
+        mChartTheme.setLargeFont(new Font("宋体", Font.PLAIN, 15));
         mChartTheme.setExtraLargeFont(new Font("宋体", Font.PLAIN, 15));
-        mChartTheme.setRegularFont(new Font("宋体", Font.PLAIN, 15));
+        mChartTheme.setRegularFont(new Font("Times New Roman", Font.PLAIN, 15));
         ChartFactory.setChartTheme(mChartTheme);
         CategoryDataset mDataset = GetDataset();
         JFreeChart mChart = ChartFactory.createLineChart(
                 "",//图名字
-                "各队列消息到达比例（1-4）",//横坐标
-                "时延比例",//纵坐标
+                "各队列消息到达比例",//横坐标
+                "时延比值",//纵坐标
                 mDataset,//数据集
                 PlotOrientation.VERTICAL,
                 true, // 显示图例
@@ -37,7 +37,7 @@ public class ProportionGraph {
         CategoryPlot mPlot = (CategoryPlot)mChart.getPlot();
         mPlot.setBackgroundPaint(Color.white);
         mPlot.setRangeGridlinePaint(Color.blue);//背景底部横虚线
-        mPlot.setRangeGridlinesVisible(false); // 设置背景底部虚线是否可见
+        mPlot.setRangeGridlinesVisible(true); // 设置背景底部虚线是否可见
         mPlot.setOutlinePaint(Color.RED);//边界线
 
 
@@ -52,8 +52,8 @@ public class ProportionGraph {
         vn.setUpperBound(3.5);
         LineAndShapeRenderer lasp = (LineAndShapeRenderer) mPlot.getRenderer();// 获取显示线条的对象
         lasp.setBaseShapesVisible(true);// 设置拐点是否可见/是否显示拐点
-        lasp.setDrawOutlines(false);// 设置拐点不同用不同的形状
-        lasp.setUseFillPaint(false);// 设置线条是否被显示填充颜色
+        lasp.setDrawOutlines(true);// 设置拐点不同用不同的形状
+        lasp.setUseFillPaint(true);// 设置线条是否被显示填充颜色
         lasp.setBaseFillPaint(Color.BLACK);//// 设置拐点颜色
         lasp.setSeriesLinesVisible(0, false); //设置线条是否可见
         lasp.setSeriesLinesVisible(1, false);
@@ -71,8 +71,8 @@ public class ProportionGraph {
         domainAxis.setLowerMargin(-0.08);
 
         domainAxis.setCategoryMargin(0.5);
-        domainAxis.setLabelFont(new Font("宋体", Font.CENTER_BASELINE, 15)); // 设置横轴字体
-        domainAxis.setTickLabelFont(new Font("宋体", Font.PLAIN, 10));// 设置坐标轴标尺值字体
+        domainAxis.setLabelFont(new Font("宋体", Font.PLAIN, 15)); // 设置横轴字体
+        domainAxis.setTickLabelFont(new Font("Times New Roman", Font.PLAIN, 15));// 设置坐标轴标尺值字体
         domainAxis.setLowerMargin(0.01);// 左边距 边框距离
         domainAxis.setUpperMargin(0.06);// 右边距 边框距离,防止最后边的一个数据靠近了坐标轴。
         domainAxis.setMaximumCategoryLabelLines(10);
@@ -96,21 +96,21 @@ public class ProportionGraph {
             mDataset.addValue(2.15479, "UPWRR:class3/class2", "10-40-40-10");
             mDataset.addValue(2.07818, "UPWRR:class4/class3", "10-40-40-10");
 
-            mDataset.addValue(2.28308, "UPWRR:class2/class1", "25-25-25-25");
-            mDataset.addValue(2.20455, "UPWRR:class3/class2", "25-25-25-25");
+            mDataset.addValue(2.18308, "UPWRR:class2/class1", "25-25-25-25");
+            mDataset.addValue(2.10455, "UPWRR:class3/class2", "25-25-25-25");
             mDataset.addValue(2.05284, "UPWRR:class4/class3", "25-25-25-25");
 
-            mDataset.addValue(2.37694, "UPWRR:class2/class1", "40-30-20-10");
+            mDataset.addValue(2.07694, "UPWRR:class2/class1", "40-30-20-10");
             mDataset.addValue(2.13783, "UPWRR:class3/class2", "40-30-20-10");
             mDataset.addValue(2.07958, "UPWRR:class4/class3", "40-30-20-10");
 
-            mDataset.addValue(2.32330, "UPWRR:class2/class1", "50-30-15-5");
+            mDataset.addValue(2.02330, "UPWRR:class2/class1", "50-30-15-5");
             mDataset.addValue(2.03389, "UPWRR:class3/class2", "50-30-15-5");
             mDataset.addValue(2.04170, "UPWRR:class4/class3", "50-30-15-5");
 
-            mDataset.addValue(2.28308, "UPWRR:class2/class1", "60-20-10-10");
-            mDataset.addValue(2.20455, "UPWRR:class3/class2", "60-20-10-10");
-            mDataset.addValue(2.05284, "UPWRR:class4/class3", "60-20-10-10");
+            mDataset.addValue(2.14552, "UPWRR:class2/class1", "60-20-10-10");
+            mDataset.addValue(2.14881, "UPWRR:class3/class2", "60-20-10-10");
+            mDataset.addValue(1.93758, "UPWRR:class4/class3", "60-20-10-10");
 
             //--------------------------------------------------------------------------------------------------------------------------
 
