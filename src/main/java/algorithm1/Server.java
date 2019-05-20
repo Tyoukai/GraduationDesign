@@ -12,7 +12,7 @@ public class Server implements  Runnable {
     //用来存放队列
     private ArrayList<MessageQueue> queue ;
     private int P = 50000; //单服务器T时间内的平均处理消息个数
-    private int type = 2; // 表示使用基于紧急指数的--》0，基于时间的BPR--》1, 基于队列长度的BPR--》2， type-》3 PFWRR
+    private int type = 0; // 表示使用基于紧急指数的--》0，基于时间的BPR--》1, 基于队列长度的BPR--》2， type-》3 PFWRR
 
 
     Server() {
